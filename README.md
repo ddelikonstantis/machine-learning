@@ -1,2 +1,5 @@
-# machine-learning
- Multiple machine learning assignments for the AI lab.
+# Machine learning with R and Matlab
+Machine learning is a field of inquiry devoted to understanding and building methods that *learn* methods that leverage data to improve performance on some set of tasks. It is a field of Artificial Intelligence. Machine learning algorithms build a model based on sample data, in order to make predictions or decisions without being explicitly programmed to do so. Machine learning algorithms are used in a wide variety of applications, such as in medicine, email filtering, speech recognition, agriculture, and computer vision, where it is difficult or unfeasible to develop conventional algorithms to perform the needed tasks.
+
+## Objective
+This repository explores the field of machine learning with multiple assignments that include predictive modelling, data analysis, statistical analysis, clustering, classification, regression, principal component analysis, neural networks and visualization.
