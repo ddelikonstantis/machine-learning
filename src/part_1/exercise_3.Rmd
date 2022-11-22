@@ -1,0 +1,105 @@
+---
+title: "Part I"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 3
+
+# Absract
+In this excersise we analyzed the data-set decathlon.csv which refer to the performance records of different athletes per game for the Olympic games (2004, Greece). Firstly, we normalized the data cause we wanted to perform a reliable analysis. If we hadn't normalize the data, the algorithm would be dominated by the variables that use a larger scale, adversely affecting our model's performance. Therefore, we decided it was imperative to normalize the data. Then, we created a dendrogram which shows a picture of the athletes performances. Also, we performed k-means clustering on the data-set and estimated the best value for k.
+
+# Implementation
+At start, we load the required libraries. Then, we read the data-set with the command read.csv function which puts the data into a data-frame. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu).
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(dplyr)
+
+# read file
+mydata <-read.csv("decathlon.csv",header=TRUE, sep=";")
+mydata <- mydata
+
+# view what is on the data frame
+names(mydata)
+
+# view the first few rows of the data
+head(mydata)
+
+# view basic descriptives of the data
+summary(mydata)
+```
+
+As a next step, we create a dendrogram of the data-set. In order to do this, we had to exclude columns 1 and 14 which are non-numeric columns. Column 1 refers to the names of the athletes and column 14 refers to the name of the competition "Olympic games". After that, we normalize the data cause we want to perform a reliable analysis. If we don't normalize the data, the algorithm will be dominated by the variables that use a larger scale, adversely affecting model performance. Therefore, we decided it is imperative to normalize the data. After normalizing the data, we calculated the euclidean distances of the values of the data and stored it in a table. Then we performed hierarchical clustering on the distances of the data. After that, we converted the hierarchical clustering into a dendrogram and plot it by using the function plot.
+
+```{r}
+# exclude columns 1 and 14 as they are non-numeric columns
+mydata <- mydata[,-c(1,14)]
+
+# compute euclidean distances and hierarchical clustering
+dd <- dist(scale(mydata), method = "euclidean")
+hc <- hclust(dd, method = "ward.D2")
+
+# Convert hierarchical clustering into a dendrogram and plot
+hcd <- as.dendrogram(hc)
+# Default plot
+plot(hcd, type = "rectangle", ylab = "Height")
+```
+
+Then, we implemented the k-means clustering algorithm. Initially, we experimented with different k values and displayed the cluster centers and the data points in each cluster. Different values for k were tested (2 ~ 40).
+
+```{r}
+# set the seed for reproducibility
+set.seed(76964057)
+
+# initialize k-means and experiment with the number of clusters
+k <-kmeans(scale(mydata), centers=5)
+
+# display cluster centers
+# display averages for each numeric variable
+k$centers
+
+# give a count of data points in each cluster
+table(k$cluster)
+```
+
+As a next step, we implemented an iteration with different values of k to find the best value. We tried for k values from 2 to 30 with 100 iterations for each k value. In each iteration we store the total sum of squares of the distance from each data point to the cluster center. After the 100 iterations we calculate the mean of the total sum of squares. Then, we plot the average total sum of squares vs k value.
+
+```{r}
+# K from 2 to 30
+rng <- 2:30
+
+# iterate k-means algorithm for 100 times
+tries <- 100
+
+# set up an empty vector to hold all of points
+avg.totw.ss<-integer(length(rng))
+
+# iterate for each value of the range variable
+for(v in rng){
+  # set up an empty vector to store the 100 tries
+  v.totw.ss <- integer(tries)
+  for(i in 1:tries){
+    #Run kmeans
+    k.temp <- kmeans(mydata, centers=v)
+    #Store the total sum of squares of the distance from each data point to the cluster center
+    v.totw.ss[i]<-k.temp$tot.withinss
+  }
+  #Average the 100 total sum of squares of the distance from each data point to the cluster center
+  avg.totw.ss[v-1]<-mean(v.totw.ss) 
+}
+
+# plot the average total sum of squares vs k value
+plot(rng,avg.totw.ss,type="b", main="Total Within SS by Various values of K",
+     ylab="Average Total Within Sum of Squares",
+     xlab="Value of K")
+```
+
+Viewing the plot we can observe the "elbow" point being in value k=5. So we assume that a value of k=5 is the best number of clusters for k-means in our example.

@@ -1,0 +1,79 @@
+---
+title: "Part II"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 6
+
+# Absract
+In this exercise we analyzed a data-set which consists of hair color among men and women. Then we are called to check if the hair color is independent from the gender for significance level of 0.05. The null hypothesis h0 is "The hair color is independent from the gender" and we check for a significance level of 0.05.
+
+# Implementation
+First, we create the data vectors and then put all the vectors in a data-frame. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu).
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(gplots)
+library(corrplot)
+
+# create vectors 
+gender <- c("Agoria", "Koritsia")
+fair <- c(592, 544)
+red <- c(119, 97)
+medium <- c(849, 677)
+dark <- c(504, 451)
+jetblack <- c(36, 14)
+
+# create data frame
+mydata <- data.frame(gender, fair, red, medium, dark, jetblack)
+
+# view what is on the data frame
+names(mydata)
+
+# view the first few rows of the data
+head(mydata)
+
+# basic descriptives of the data
+summary(mydata)
+```
+
+After that, we exclude the column gender cause it is non-numeric. Then we convert the data as a table and create a balloon plot to visualize the table data.
+
+```{r}
+# exclude gender column
+mydata <- mydata[,-c(1)]
+
+# view the first few rows of the data again
+head(mydata)
+
+# convert the data as a table
+dt <- as.table(as.matrix(mydata))
+# Graph the table
+balloonplot(t(dt), main ="data table visualization", xlab ="hair color", ylab="gender",
+            label = FALSE, show.margins = FALSE)
+```
+
+Furthermore, we implement the chi-squared test to check the significance association between the rows and the columns.
+
+```{r}
+# Chi-square statistic test
+# check significance association between rows and columns
+chisq <- chisq.test(mydata)
+chisq
+
+chisq$observed
+round(chisq$expected,2)
+
+# view Pearson residuals
+corrplot(chisq$residuals, is.cor = FALSE)
+```
+
+The chi-squared test reported back a p-value = 0.03325. This means that, the row and the column variables are statistically significantly associated. The significance level for this analysis is 0.05. Therefore, we reject the null hypothesis h0 "The hair color is independent from the gender".

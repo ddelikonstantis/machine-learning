@@ -1,0 +1,59 @@
+---
+title: "Part II"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 4
+
+# Absract
+In this exercise we analyzed the data-set mtcars. The mtcars data-set is a build-in data-set in R. We were called to find the confidence level with a factor of 0.95 for the difference of mean values corresponding to fuel consumption with manual gearing vs fuel consumption with automatic gearing.
+
+# Implementation
+At first, we load the data-set mtcars. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu).
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(gplots)
+library(corrplot)
+
+# read data
+mydata <- mtcars
+
+# view what is on the data frame
+names(mydata)
+
+# view the first few rows of the data
+head(mydata)
+
+# basic descriptives of the data
+summary(mydata)
+```
+
+As a next step, we divide the data-set depending on if the car is automatic or has manual gearing and then we take the miles per gallon column. In the end, we have two vectors, the miles per gallon for automatic gearing and the miles per gallon for manual gearing. Then, we perform the t.test on these two vectors.
+
+```{r}
+# miles per gallon for manual gearing
+x <- mydata[ which(mydata$am == 0),]
+x <- x$mpg
+x
+
+# miles per gallon for automatic gearing
+y <- mydata[ which(mydata$am == 1),]
+y <- y$mpg
+y
+
+# t.test function
+# miles per gallon for automatic vs miles per gallon for manual gearing
+t.test(x,y)
+```
+
+The p-value=0.001374 means that the data is statistically significantly associated. The 95% confidence interval reported back by t.test function is:     
+
+-11.280194  -3.209684

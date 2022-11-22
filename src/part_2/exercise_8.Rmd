@@ -1,0 +1,80 @@
+---
+title: "Part II"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 8
+
+# Absract
+In this exercise we will analyze the data "mf.xls". We are called to implement correlation tables between the variables, check the relationship between the complaint code variable and the manufacturing plant variable for significance level 0.01 and then check the difference between the dollar claim amount variable and the manufacturing plant variable for a significance level of 0.02.
+
+# Implementation
+First we read the data with read.csv function and put it in a data-frame. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu).
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(gplots)
+library(corrplot)
+library(readxl)
+
+# read data
+mydata <- read_excel("mf.xls")
+
+# view what is on the data frame
+names(mydata)
+
+# view the first few rows of the data
+head(mydata)
+
+# view basic descriptives of the data
+summary(mydata)
+```
+
+After that, we implement the correlation between the variables in two groups. Group 1 is the correlation between dollar claim amount variable and shift. Group 2 is the correlation between complaint code variable and manufacturing plant.
+
+```{r}
+# correlation table of dollar claim amount vs shift
+res <- cor(mydata[-c(3,4)])
+round(res, 2)
+
+# correlation table of complaint code vs manufacturing plant 
+res <- cor(mydata[-c(1,2)])
+round(res, 2)
+```
+
+The correlation coefficient for Group 1 (Dollar claim amount, shift) is -0.02 and shows that there is no linear relationship between the movement of the two variables. The correlation coefficient for Group 2 (Complaint code, manufacturing plant) is 0.21 and shows that there is a positive correlation between two variables, but it is weak and likely unimportant.   
+
+As a next step, we calculated the expected values for each variable. We make a null hypothesis h0 "There is a relation between complaint codes and manufacturing plants" and check for a significance level of 0.01. To do this, we check with the t.test function between complaint code and manufacturing plant variables.
+
+```{r}
+# t.test function between complaint code variable and manufacturing plant variable
+t.test(mydata$`Complaint Code`, mydata$`Manufacturing Plant`)
+```
+
+The t.test result returned back a p-value=0.000000001. This means that, the variables are statistically significantly associated. The significance level for this analysis is 0.01. Therefore, we reject the null hypothesis h0 "There is a relation between complaint codes and manufacturing plants". The manager's suspicion is wrong on this matter.
+
+After that, we check the relationship between the dollar claim amount and the manufacturing plants (Boise and Salt Lake city) for a significance level a=0.02.
+
+```{r}
+# select data based on manufacturing plant observations 1 and 2
+data_mod <- mydata[ which(mydata$`Manufacturing Plant` < 3),]
+data_mod <- data_mod[c(1,4)]
+data_mod
+
+# Chi-square statistic test
+# check significance association between rows and columns
+chisq <- chisq.test(data_mod, simulate.p.value = TRUE)
+chisq
+```
+
+The chi-squared test returns a p-value=1. This means that, the complaint code and manufacturing plant variables are not statistically significantly associated. That means that, there is no statistical significance to reject the manager's hypothesis about the dollar claim amount and the manufacturing plant.
+
+

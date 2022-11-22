@@ -1,0 +1,128 @@
+---
+title: "Part I"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 1
+
+# Absract
+In this exercise we implemented linear regression, logistic regression and the perceptron algorithm for a data-set that describes coronary heart disease versus age (Coronary Heart Disease.txt). Then, for each algorithm used, we report back the intercept (w0), the slope (w1), R-squared parameter and the plot graphs. According to the exercise description, age is the independent variable and coronary heart disease is the dependent one. In the plots presented throughout the exercise, X axis displays the independent variable (Age) whereas Y axis displays the dependent variable (Coronary heart disease).
+
+# Implementation
+At start, we load the required libraries. Not all the libraries that are loaded are used as there were many changes and experimentation before the final result. They are inserted as a group in each exercise and there are further libraries added to the group if needed.
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(corrplot)
+library(DescTools)
+```
+
+We start by implementing a simple logistic regression example for a single independent variable and we extract the intercept (w0), the slope (w1) of the model and the pseudo-R-squared value. We used the glm function and summary function to extract these parameters. We initialize a vector x with values and a vector y with labels. Variable x is the independent variable whereas variable y is the dependent one. The model presented below is of type y = w0 + w1 * x. This implementation is to demonstrate a simple logistic regression example.
+
+```{r}
+# create vector with values
+x <- c(1, 58, 43, 91, 65, 12, 27, 43, 77)
+# create vector with labels
+y <- c(0, 1, 1, 1, 0, 1, 0, 1, 1)
+# estimate a logistic regression model
+glmmodel <- glm(y ~ x)
+# view basic descriptives of the data
+summary(glmmodel)
+# calculate R-squared value for logistic regression
+PseudoR2(glmmodel)
+```
+
+As we can see, the intercept is w0=0.36435 and the slope is w1=0.006525. So now, the model generalizes to y = 0.36435 + 0006525 * x. Furthermore, the R-squared factor from the probabilities is 12.19% which is a poor explanation of the variability of the response data around its mean. The R-squared factor is reported back with the PseudoR2 function.   
+
+Now we will use the simple linear regression algorithm on the Coronary Heart Disease.txt data-set and we will report back the parameters of the model (w0, w1 and R2). First, we read the file with the read.table function and put it in a table. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu). Then we view the standard deviations by applying the sd function to each variable on the data-set. The correlation coefficient between the variables is reported back with the cor function. Then we do a scatter-plot of the data to visualize and see the relationship between the variables.
+
+```{r}
+# read file
+mydata <- read.table("Coronary Heart Disease.txt", header=TRUE, sep=",")
+# view what is on the data frame
+names(mydata)
+# view the first few rows of the data
+head(mydata)
+# view basic descriptives of the data
+summary(mydata)
+# view the standard deviations by applying the sd function to each variable on the data-set
+sapply(mydata, sd)
+# correlation coefficient between the variables
+cor(mydata$Age, mydata$Coronary.Heart.Disease)
+# scatter plot displaying Age versus Coronary heart disease
+ggplot(mydata, aes(x = Age, y = Coronary.Heart.Disease)) + geom_point() + stat_smooth() + ggtitle("Coronary heart disease vs. Age (Scatter plot)")
+```
+
+Now that we have prepared our data, we are ready to implement the linear regression algorithm with the lm function. Age is the independent variable whereas Coronary heart disease is the dependent variable. The independent variable (Age) is displayed on the X axis whereas the dependent variable (Coronary heart disease) is displayed on the Y axis. The linear model (lm function) reports back that the intercept is w0=-0.538933 and the slope is w1=0.021922. So the simple linear model generalizes to Chd = -0.538933 + 0.021922 * Age. The multiple R-squared is 25.79%. This means that the linear model explains poorly the variability of the response data around its mean. Also, we created the linear regression plot between the variables.
+
+```{r}
+# Age is the independent variable whereas Coronary heart disease is the dependent variable
+# The independent variable (Age) is displayed on the X axis whereas the dependent variable (Coronary heart disease) is displayed on the Y axis
+# Chd = w0 + w1 * Age
+# estimate a linear regression model
+lmmodel <- lm(Coronary.Heart.Disease ~ Age, data = mydata)
+print(lmmodel)
+# scatter plot of the linear regression line
+ggplot(mydata, aes(Age, Coronary.Heart.Disease)) + geom_point() + stat_smooth(method = lm) + ggtitle("Coronary heart disease vs. Age (Linear regression model)")
+# view the statistical summary of the linear regression model
+summary(lmmodel)
+```
+
+The linear model predicts a probability of 35.9851% for someone aged 41 years old to suffer from Coronary heart disease. Below we can observe the model prediction probability outcome.
+
+```{r}
+# model prediction probability (linear regression) of someone 41 years old suffering of Coronary heart disease
+Age_41 <- data.frame(Age=41)
+Age_41$prediction <- predict(lmmodel, newdata=Age_41)
+print(Age_41$prediction)
+```
+
+As a next step, we implement the logistic regression algorithm on the same data-set with the glm function. Again, Age is the independent variable whereas Coronary heart disease is the dependent variable. The independent variable (Age) is displayed on the X axis whereas the dependent variable (Coronary heart disease) is displayed on the Y axis. The logistic regression model (glm function) reports back that the intercept value is w0=-5.2264 and the slope value is w1=0.1095. So the logistic regression model generalizes to Chd = -5.2264 + 0.1095 * Age. The pseudo-R-squared value is 20.78806%. This means that the logistic model explains less the variability of the response data around its mean than the linear model algorithm (Linear model R-squared=25.79%). Below, we can observe the original (probability) data plot.
+
+```{r}
+# estimate a logistic regression model
+glmmodel <- glm(Coronary.Heart.Disease ~ Age, data = mydata, family = "binomial")
+print(glmmodel)
+# view the statistical summary of the logistic regression model
+summary(glmmodel)
+# calculate R-squared value for logistic regression
+PseudoR2(glmmodel)
+# make predictions on the training data used to fit the model and get a vector of fitted probabilities
+glmmodel_probs <- predict(glmmodel, type = "response")
+# plot predicted probability
+ggplot(mydata, aes(x = Age, y = glmmodel_probs)) + geom_point() + stat_smooth() + ggtitle("Coronary heart disease vs. Age (Logistic regression predicted probability)")
+```
+
+The logistic regression model predicts a probability of 32.37096% for someone aged 41 years old to suffer from Coronary heart disease. Below we can observe the model prediction probability outcome.
+
+```{r}
+# model prediction probability (logistic regression) of someone 41 years old suffering of Coronary heart disease
+Age_41 <- data.frame(Age=41)
+Age_41$prediction <- predict(glmmodel, newdata=Age_41, type='response')
+print(Age_41$prediction)
+```
+
+Furthermore, we continue to implement the perceptron algorithm for the same data-set. At start we divide the data-set into train and test. Then, we do a scatter plot of the training data-set.
+
+```{r}
+#perceptron implementation
+# divide complete data-set into test and train data-sets
+indexes <- sample(1:nrow(mydata), size = 0.8 * nrow(mydata))
+train <- mydata[indexes,]
+# train
+test <- mydata[-indexes,]
+# test
+
+# plot train data-set
+str(train)
+summary(train)
+with(train, plot(mydata$Coronary.Heart.Disease, col=mydata$Age, xlab = "Age", ylab = "Coronary heart disease", main = "Train dataset"))
+```

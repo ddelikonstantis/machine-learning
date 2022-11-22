@@ -1,0 +1,68 @@
+---
+title: "Part II"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 7.2
+
+# Absract
+In this exercise we analyzed a data-set "insurance.csv" which includes 1338 samples on variables: age, sex, bmi, children, smoker, region and charges. We are called to investigate how these variables affect the charges variable.
+
+
+# Implementation
+First we read the data with read.csv function and put it in a data-frame. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu).
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(gplots)
+library(corrplot)
+library(readxl)
+library(psych)
+library(interplot)
+
+# read data
+mydata <- read.csv("insurance.csv", header=TRUE)
+
+# view what is on the data frame
+names(mydata)
+
+# view the first few rows of the data
+head(mydata)
+
+# view basic descriptives of the data
+summary(mydata)
+```
+
+Then we make a check of the variables with the "psych" package. We extract the geometric mean and also the harmonic mean for each of the variables.
+
+```{r}
+# geometric.mean function
+geometric.mean(mydata[c(1,3,4,7)],na.rm=TRUE)
+
+# harmonic.mean function
+harmonic.mean(mydata[c(1,3,4,7)],na.rm=TRUE)
+```
+
+After that, we perform the t.test function to check how each numeric variable affects the charges variable.
+
+```{r}
+age <- mydata$age
+bmi <- mydata$bmi
+children <- mydata$children
+charges <- mydata$charges
+
+# two sample t-test to check how each variable affects charges
+t.test(age,charges)
+t.test(bmi,charges)
+t.test(children,charges)
+```
+
+In every t.test analysis the p-value is 0 which means that all variables are statistically significantly associated with each other. Therefore, all variables affect the charges variable.

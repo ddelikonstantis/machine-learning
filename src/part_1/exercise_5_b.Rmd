@@ -1,0 +1,104 @@
+---
+title: "Part I"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Excercise 5 (B)
+
+# Absract
+In this excersise we analyzed the data-set "ask1mf.xls" which refer to a sample of 32 observations of high school students. The variables in this data-set are GPA (mean grade), TUCE (exams grade in finance), PSI (student relation with finance). We were called to perform a scatter plot between the variables, find the sample mean and sample variance, find the correlation coefficient, implement linear regression and calculate the anova matrix.
+
+# Implementation
+At start, we load the required libraries. Then, we read the data-set with the read_excel function which puts the data into a data-frame. Then, we view the column names and the first few rows to get an idea on how the data-set looks like. The summary function gives us some basic descriptives of the data (min value, max value, median, mean, 1st Qu, 3rd Qu). After that, we do a scatter plot of the variable GPA vs variable TUCE.
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggpubr)
+library(aod)
+library(ggplot2)
+library(readtext)
+library(rgl)
+library(dplyr)
+library(readxl)
+
+# read data
+mydata <- read_excel("ask1mf.XLS")
+
+# view what is on the data frame
+names(mydata)
+
+# view the first few rows of the data
+head(mydata)
+
+# view basic descriptives of the data
+summary(mydata)
+
+# scatter plot of GPA vs TUCE
+plot(mydata$GPA, mydata$TUCE, main="Scatter plot of GPA vs TUCE",
+     xlab="GPA ", ylab="TUCE", pch=19)
+```
+
+From the scatter plot output above we don't see a pattern/relationship between the variables GPA and TUCE. There is no ascending or descending relationship between the variables as we go from right to left on the plot.
+
+As a next step, make two groups. Group 1 involves the variables GPA+PSI and Group 2 involves the variables TUCE+PSI. Then we implement a scatter plot between Group 1 (GPA+PSI) and Group 2 (TUCE+PSI).
+
+```{r}
+# scatter plot of Group 1 (GPA + PSI) vs Group 2 (TUCE + PSI)
+plot(mydata$GPA + mydata$PSI, mydata$TUCE + mydata$PSI, main="Scatter plot of Group 1 (GPA + PSI) vs Group 2 (TUCE + PSI)",
+     xlab="Group 1 (GPA + PSI)", ylab="Group 2 (TUCE + PSI)", pch=19)
+```
+
+Now the scatter plot presents an ascending relationship between the two groups. As we go from left to right the two groups increase together.
+
+Furthermore, we calculate the sample mean and sample variance for each variable. Function summary shows us the sample mean for each variable and function var presents the sample variance for each variable.
+
+```{r}
+# view sample mean
+summary(mydata)
+# view sample variance
+var_GPA <- var(mydata$GPA)
+var_GPA
+var_TUCE <- var(mydata$TUCE)
+var_TUCE
+var_PSI <- var(mydata$PSI)
+var_PSI
+```
+
+Additionally, we calculate the correlation coefficient between variables GPA and TUCE.
+
+```{r}
+# correlation coefficient between variables GPA and TUCE
+cor(mydata$GPA, mydata$TUCE, method = "kendall")
+```
+
+In this step we calculate the linear regression between the variables TUCE AND GPA. TUCE is the dependent variable whereas GPA is the independent one.
+
+```{r}
+# linear regression
+# GPA is the independent variable whereas TUCE is the dependent variable
+lmmodel <- lm(mydata$TUCE ~ mydata$GPA, data = mydata)
+print(lmmodel)
+
+# view the statistical summary of the linear regression model
+summary(lmmodel)
+
+# correlation coefficient between GPA and TUCE
+cor(mydata$GPA, mydata$TUCE)
+
+# scatter plot of the linear regression line
+ggplot(mydata, aes(GPA, TUCE)) + geom_point() + stat_smooth(method = lm) + ggtitle("GPA vs TUCE (Linear regression model)")
+
+```
+
+The linear model coefficients intercept is w0 = 11.853 and slope is w1 = 3.235. The multiple R-squared is 14.98%.
+We have a low R-squared value which means that we have a high bias on our data-set. The linear model scatter plot verifies the scatter plot assumptions we did in earlier step between variables TUCE and GPA. There is no obvious relationship between these two variables. As a last step, we calculate the anova matrix between the variables TUCE and GPA.
+```{r}
+# anova matrix
+fit <- aov(TUCE ~ GPA, data=mydata) 
+fit
+
+```
+
